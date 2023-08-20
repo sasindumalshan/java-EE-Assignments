@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Item Manage</title>
+    <meta content="width=device-width initial-scale=1" name="viewport">
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/styles.css" rel="stylesheet">
+    <link crossorigin="anonymous" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+          integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" rel="stylesheet">
+    <style>
+        ul > li {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<!--header-->
+<header class="jumbotron bg-primary text-white p-3">
+    <h1 class="position-absolute" id="nav"></h1>
+    <ul class="list-group list-group-horizontal text-danger justify-content-end font-weight-bold">
+        <li class="list-group-item bg-white" id="lnkHome"><a href="../index.jsp">Home</a></li>
+        <li class="list-group-item bg-white" id="lnkCustomer"><a href="customer.html">Customer</a></li>
+        <li class="list-group-item bg-danger text-white" id="lnkItem"><a class="text-white" href="item.jsp">Item</a>
+        </li>
+        <li class="list-group-item bg-white" id="lnkOrders"><a href="purchase-order.jsp">Orders</a></li>
+    </ul>
+</header>
+
+<!--item content-->
+<main class="container-fluid" id="itemContent">
+    <section class="row">
+        <div class="col-12 col-lg-4">
+            <h1>Item Form</h1>
+            <form id="itemForm">
+                <div class="form-group">
+                    <label for="itemCode">Item Code</label>
+                    <input class="form-control" id="itemCode" name="code" type="text">
+                    <span class="control-error" id="lblCode"></span>
+                </div>
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input class="form-control" id="itemName" name="description" type="text">
+                    <span class="control-error" id="lblname"></span>
+                </div>
+                <div class="form-group">
+                    <label for="itemQty">Item Qty</label>
+                    <input class="form-control" id="itemQty" name="qty" type="text">
+                    <span class="control-error" id="lblqty"></span>
+                </div>
+                <div class="form-group">
+                    <label for="itemPrice">Unit Price</label>
+                    <input class="form-control" id="itemPrice" name="unitPrice" type="text">
+                    <span class="control-error" id="lblprice"></span>
+                </div>
+            </form>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="btnItem" type="button">Add Item</button>
+                <button class="btn btn-danger" id="btnItemDelete" type="button">Remove</button>
+                <button class="btn btn-warning" id="btnItemUpdate" type="button">Update</button>
+                <button class="btn btn-success" id="btnGetAll" type="button">Get All</button>
+                <button class="btn btn-danger" id="btn-clear" type="button">Clear All</button>
+            </div>
+
+        </div>
+        <div class="col-12 col-lg-8 mt-3">
+            <table class="table table-bordered table-hover">
+                <thead class="bg-danger text-white">
+                <tr>
+                    <th>Item Code</th>
+                    <th>Item Name</th>
+                    <th>Item Qty</th>
+                    <th>Item Price</th>
+                </tr>
+                </thead>
+                <tbody id="tblItem">
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+<script src="../assets/js/jquery-3.6.1.min.js"></script>
+<script>
+    getAllItems();
+
+    $("#btnGetAll").click(function () {
+        getAllItems();
+    });
+
+    function getAllItems() {
+        $("#tblItem").empty();
+
+        $.ajax({
+            url: 'item',
+            dataType: "json",
+            success: function (items) {
+                for (let i in items) {
+                    let item = items[i];
+                    let code = item.code;
+                    let description = item.description;
+                    let qtyOnHand = item.qtyOnHand;
+                    let unitPrice = item.unitPrice;
+                    let row = `<tr><td>${code}</td><td>${description}</td><td>${qtyOnHand}</td></tr>${unitPrice}</td></tr>`;
+                    $("#tblItem").append(row);
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+    $("#btnItem").click(function () {
+        let formData = $("#itemForm").serialize();
+        $.ajax({
+            url: "item?option=add",
+            method: "post",
+            data: formData,
+            success: function (res) {
+                console.log(res);
+                alert(res.message);
+                getAllItems();
+            },
+            error: function (error) {
+                console.log(error.responseJSON);
+                alert(error.responseJSON.message);
+            }
+        });
+
+    });
+
+    $("#btnItemDelete").click(function () {
+        let formData = $("#itemForm").serialize();
+        $.ajax({
+            url: 'item?option=delete',
+            method: 'post',
+            data: formData,
+            success: function (resp) {
+                getAllItems();
+            }
+        });
+    });
+
+    $("#btnItemUpdate").click(function () {
+        let formData = $("#itemForm").serialize();
+        $.ajax({
+            url: 'item?option=update',
+            method: 'post',
+            data: formData,
+            success: function (resp) {
+                getAllItems();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
